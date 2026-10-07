@@ -142,6 +142,7 @@ my_flights |>
 In the package `dplyr` there is a dataset called `starwars`. You'll see this again in the homework (it's just easier to use built-in data!).
 
 ```{r}
+data("starwars") ## optional add to add data to environment
 glimpse(starwars)
 ```
 
@@ -152,22 +153,23 @@ We're going to use this to practice some data wrangling with `dplyr`.
 11. How many characters are from each planet?
 
 ```{r}
-
-
+# each row is a character, so we need to count how many rows for each value of `homeworld`
+starwars |> count(homeworld)
+starwars |> group_by(homeworld) |> summarise(n = n()) # more formal way, does the same thing
 
 ```
 
 12. Add to the pipe to arrange this count in descending order.
 
 ```{r}
-
+starwars |> count(homeworld) |> arrange(-n)
 
 ```
 
 13. Find the average height for each eye color. You might find some of the answers to be strange, but keep going! 
 
 ```{r}
-
+starwars |> group_by(eye_color) |> summarise(avg_height = mean(height))
 
 ```
 
@@ -175,7 +177,7 @@ We're going to use this to practice some data wrangling with `dplyr`.
 
 
 ```{r}
-
+starwars |> filter(eye_color == "brown") 
 
 ```
 
@@ -183,13 +185,34 @@ We're going to use this to practice some data wrangling with `dplyr`.
 
 
 ```{r}
+starwars |> 
+  drop_na(height) |>  ## drops rows that have "NA" as the height (just for this pipe, not from the data overall)
+  group_by(eye_color) |> 
+  summarise(avg_height = mean(height))
 
+## or 
+starwars |> 
+  group_by(eye_color) |> 
+  summarise(avg_height = mean(height, na.rm = T)) # tells R to ignore NAs for the calculations
 
 ```
 
 16. So, who is the tallest male? How many blue eyed women are there? How many genders are there? Answer these questions and spend some time asking and answering some of your own. 
 
 ```{r}
+# who is the tallest male?
+starwars |> filter(sex == "male") |> slice_max(height) # Yarael Poof is the tallest male
+starwars |> filter(gender == "masculine") |> slice_max(height) # (also the tallest masculine person!)
+
+# How many blue eyed women are there?
+starwars |> filter(eye_color == "blue", gender == "feminine") |> count() # 6! 
+
+# How many genders are there?
+starwars |> summarise(num_genders = n_distinct(gender)) # 3! 
+
+## why is the mean for dark eyes' height NaN? 
+starwars |> filter(eye_color == "dark") 
+## because there is only one character with dark eyes and they have NA height, so it's missing/empty
 
 
 ```

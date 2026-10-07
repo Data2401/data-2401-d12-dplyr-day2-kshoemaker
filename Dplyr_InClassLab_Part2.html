@@ -536,7 +536,8 @@ origin.</li>
 <p>In the package <code>dplyr</code> there is a dataset called
 <code>starwars</code>. You’ll see this again in the homework (it’s just
 easier to use built-in data!).</p>
-<pre class="r"><code>glimpse(starwars)</code></pre>
+<pre class="r"><code>data(&quot;starwars&quot;) ## optional add to add data to environment
+glimpse(starwars)</code></pre>
 <pre><code>## Rows: 87
 ## Columns: 14
 ## $ name       &lt;chr&gt; &quot;Luke Skywalker&quot;, &quot;C-3PO&quot;, &quot;R2-D2&quot;, &quot;Darth Vader&quot;, &quot;Leia Or…
@@ -556,20 +557,190 @@ easier to use built-in data!).</p>
 <p>We’re going to use this to practice some data wrangling with
 <code>dplyr</code>.</p>
 <ol start="11" style="list-style-type: decimal">
-<li><p>How many characters are from each planet?</p></li>
-<li><p>Add to the pipe to arrange this count in descending
-order.</p></li>
-<li><p>Find the average height for each eye color. You might find some
-of the answers to be strange, but keep going!</p></li>
-<li><p>So…. What’s with the NAs? Filter down to just brown eyes find out
-what’s going on.</p></li>
-<li><p>Okay, so we have missing data here. Try adding
-<code>drop_na(height)</code> or adding <code>na.rm = T</code> to the
-mean function inside summarize.</p></li>
-<li><p>So, who is the tallest male? How many blue eyed women are there?
-How many genders are there? Answer these questions and spend some time
-asking and answering some of your own.</p></li>
+<li>How many characters are from each planet?</li>
 </ol>
+<pre class="r"><code># each row is a character, so we need to count how many rows for each value of `homeworld`
+starwars |&gt; count(homeworld)</code></pre>
+<pre><code>## # A tibble: 49 × 2
+##    homeworld          n
+##    &lt;chr&gt;          &lt;int&gt;
+##  1 Alderaan           3
+##  2 Aleen Minor        1
+##  3 Bespin             1
+##  4 Bestine IV         1
+##  5 Cato Neimoidia     1
+##  6 Cerea              1
+##  7 Champala           1
+##  8 Chandrila          1
+##  9 Concord Dawn       1
+## 10 Corellia           2
+## # ℹ 39 more rows</code></pre>
+<pre class="r"><code>starwars |&gt; group_by(homeworld) |&gt; summarise(n = n()) # more formal way, does the same thing</code></pre>
+<pre><code>## # A tibble: 49 × 2
+##    homeworld          n
+##    &lt;chr&gt;          &lt;int&gt;
+##  1 Alderaan           3
+##  2 Aleen Minor        1
+##  3 Bespin             1
+##  4 Bestine IV         1
+##  5 Cato Neimoidia     1
+##  6 Cerea              1
+##  7 Champala           1
+##  8 Chandrila          1
+##  9 Concord Dawn       1
+## 10 Corellia           2
+## # ℹ 39 more rows</code></pre>
+<ol start="12" style="list-style-type: decimal">
+<li>Add to the pipe to arrange this count in descending order.</li>
+</ol>
+<pre class="r"><code>starwars |&gt; count(homeworld) |&gt; arrange(-n)</code></pre>
+<pre><code>## # A tibble: 49 × 2
+##    homeworld     n
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 Naboo        11
+##  2 Tatooine     10
+##  3 &lt;NA&gt;         10
+##  4 Alderaan      3
+##  5 Coruscant     3
+##  6 Kamino        3
+##  7 Corellia      2
+##  8 Kashyyyk      2
+##  9 Mirial        2
+## 10 Ryloth        2
+## # ℹ 39 more rows</code></pre>
+<ol start="13" style="list-style-type: decimal">
+<li>Find the average height for each eye color. You might find some of
+the answers to be strange, but keep going!</li>
+</ol>
+<pre class="r"><code>starwars |&gt; group_by(eye_color) |&gt; summarise(avg_height = mean(height))</code></pre>
+<pre><code>## # A tibble: 15 × 2
+##    eye_color     avg_height
+##    &lt;chr&gt;              &lt;dbl&gt;
+##  1 black                NA 
+##  2 blue                182.
+##  3 blue-gray           182 
+##  4 brown                NA 
+##  5 dark                 NA 
+##  6 gold                191 
+##  7 green, yellow       216 
+##  8 hazel                NA 
+##  9 orange              180.
+## 10 pink                180 
+## 11 red                 155.
+## 12 red, blue            96 
+## 13 unknown              NA 
+## 14 white               178 
+## 15 yellow              178.</code></pre>
+<ol start="14" style="list-style-type: decimal">
+<li>So…. What’s with the NAs? Filter down to just brown eyes find out
+what’s going on.</li>
+</ol>
+<pre class="r"><code>starwars |&gt; filter(eye_color == &quot;brown&quot;) </code></pre>
+<pre><code>## # A tibble: 21 × 14
+##    name     height  mass hair_color skin_color eye_color birth_year sex   gender
+##    &lt;chr&gt;     &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+##  1 Leia Or…    150  49   brown      light      brown           19   fema… femin…
+##  2 Biggs D…    183  84   black      light      brown           24   male  mascu…
+##  3 Han Solo    180  80   brown      fair       brown           29   male  mascu…
+##  4 Yoda         66  17   white      green      brown          896   male  mascu…
+##  5 Boba Fe…    183  78.2 black      fair       brown           31.5 male  mascu…
+##  6 Lando C…    177  79   black      dark       brown           31   male  mascu…
+##  7 Arvel C…     NA  NA   brown      fair       brown           NA   male  mascu…
+##  8 Wicket …     88  20   brown      brown      brown            8   male  mascu…
+##  9 Padmé A…    185  45   brown      light      brown           46   fema… femin…
+## 10 Quarsh …    183  NA   black      dark       brown           62   male  mascu…
+## # ℹ 11 more rows
+## # ℹ 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;, films &lt;list&gt;,
+## #   vehicles &lt;list&gt;, starships &lt;list&gt;</code></pre>
+<ol start="15" style="list-style-type: decimal">
+<li>Okay, so we have missing data here. Try adding
+<code>drop_na(height)</code> or adding <code>na.rm = T</code> to the
+mean function inside summarize.</li>
+</ol>
+<pre class="r"><code>starwars |&gt; 
+  drop_na(height) |&gt;  ## drops rows that have &quot;NA&quot; as the height (just for this pipe, not from the data overall)
+  group_by(eye_color) |&gt; 
+  summarise(avg_height = mean(height))</code></pre>
+<pre><code>## # A tibble: 14 × 2
+##    eye_color     avg_height
+##    &lt;chr&gt;              &lt;dbl&gt;
+##  1 black               185 
+##  2 blue                182.
+##  3 blue-gray           182 
+##  4 brown               167.
+##  5 gold                191 
+##  6 green, yellow       216 
+##  7 hazel               174 
+##  8 orange              180.
+##  9 pink                180 
+## 10 red                 155.
+## 11 red, blue            96 
+## 12 unknown             136 
+## 13 white               178 
+## 14 yellow              178.</code></pre>
+<pre class="r"><code>## or 
+starwars |&gt; 
+  group_by(eye_color) |&gt; 
+  summarise(avg_height = mean(height, na.rm = T)) # tells R to ignore NAs for the calculations</code></pre>
+<pre><code>## # A tibble: 15 × 2
+##    eye_color     avg_height
+##    &lt;chr&gt;              &lt;dbl&gt;
+##  1 black               185 
+##  2 blue                182.
+##  3 blue-gray           182 
+##  4 brown               167.
+##  5 dark                NaN 
+##  6 gold                191 
+##  7 green, yellow       216 
+##  8 hazel               174 
+##  9 orange              180.
+## 10 pink                180 
+## 11 red                 155.
+## 12 red, blue            96 
+## 13 unknown             136 
+## 14 white               178 
+## 15 yellow              178.</code></pre>
+<ol start="16" style="list-style-type: decimal">
+<li>So, who is the tallest male? How many blue eyed women are there? How
+many genders are there? Answer these questions and spend some time
+asking and answering some of your own.</li>
+</ol>
+<pre class="r"><code># who is the tallest male?
+starwars |&gt; filter(sex == &quot;male&quot;) |&gt; slice_max(height) # Yarael Poof is the tallest male</code></pre>
+<pre><code>## # A tibble: 1 × 14
+##   name      height  mass hair_color skin_color eye_color birth_year sex   gender
+##   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+## 1 Yarael P…    264    NA none       white      yellow            NA male  mascu…
+## # ℹ 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;, films &lt;list&gt;,
+## #   vehicles &lt;list&gt;, starships &lt;list&gt;</code></pre>
+<pre class="r"><code>starwars |&gt; filter(gender == &quot;masculine&quot;) |&gt; slice_max(height) # (also the tallest masculine person!)</code></pre>
+<pre><code>## # A tibble: 1 × 14
+##   name      height  mass hair_color skin_color eye_color birth_year sex   gender
+##   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt; 
+## 1 Yarael P…    264    NA none       white      yellow            NA male  mascu…
+## # ℹ 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;, films &lt;list&gt;,
+## #   vehicles &lt;list&gt;, starships &lt;list&gt;</code></pre>
+<pre class="r"><code># How many blue eyed women are there?
+starwars |&gt; filter(eye_color == &quot;blue&quot;, gender == &quot;feminine&quot;) |&gt; count() # 6! </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##       n
+##   &lt;int&gt;
+## 1     6</code></pre>
+<pre class="r"><code># How many genders are there?
+starwars |&gt; summarise(num_genders = n_distinct(gender)) # 3! </code></pre>
+<pre><code>## # A tibble: 1 × 1
+##   num_genders
+##         &lt;int&gt;
+## 1           3</code></pre>
+<pre class="r"><code>## why is the mean for dark eyes&#39; height NaN? 
+starwars |&gt; filter(eye_color == &quot;dark&quot;) </code></pre>
+<pre><code>## # A tibble: 1 × 14
+##   name  height  mass hair_color skin_color eye_color birth_year sex   gender   
+##   &lt;chr&gt;  &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt; &lt;chr&gt;    
+## 1 Finn      NA    NA black      dark       dark              NA male  masculine
+## # ℹ 5 more variables: homeworld &lt;chr&gt;, species &lt;chr&gt;, films &lt;list&gt;,
+## #   vehicles &lt;list&gt;, starships &lt;list&gt;</code></pre>
+<pre class="r"><code>## because there is only one character with dark eyes and they have NA height, so it&#39;s missing/empty</code></pre>
 </div>
 
 
